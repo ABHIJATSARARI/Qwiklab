@@ -1,0 +1,126 @@
+<html>
+<head>
+  <style>
+    /* Style the cursor image */
+    .cursor {
+      position: fixed;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* Style the canvas element */
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <!-- Add an image element for the cursor -->
+  <img src="cursor.png" class="cursor" />
+
+  <!-- Add a canvas element for the sparkling lights -->
+  <canvas id="canvas"></canvas>
+
+  <!-- Add a script element for the JavaScript code -->
+  <script>
+    // Get the cursor element from the DOM
+    const cursor = document.querySelector(".cursor");
+
+    // Get the canvas element and its context from the DOM
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    // Set the canvas size to match the window size
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Define an array to store the sparkling lights
+    const sparks = [];
+
+    // Define a function to create a new spark object
+    function createSpark(x, y, vx, vy, size, color) {
+      return {
+        x: x, // x coordinate
+        y: y, // y coordinate
+        vx: vx, // x velocity
+        vy: vy, // y velocity
+        size: size, // size
+        color: color, // color
+        alpha: 1, // alpha value
+      };
+    }
+
+    // Define a function to update the spark position and alpha value
+    function updateSpark(spark) {
+      spark.x += spark.vx; // update x coordinate by adding x velocity
+      spark.y += spark.vy; // update y coordinate by adding y velocity
+      spark.alpha -= 0.01; // decrease alpha value by 0.01
+    }
+
+    // Define a function to draw the spark on the canvas
+    function drawSpark(spark) {
+      ctx.globalAlpha = spark.alpha; // set the global alpha value to the spark alpha value
+      ctx.fillStyle = spark.color; // set the fill style to the spark color
+      ctx.beginPath(); // start a new path
+      ctx.arc(spark.x, spark.y, spark.size, 0, Math.PI * 2); // draw a circle with the spark coordinates and size
+      ctx.fill(); // fill the path with the fill style
+    }
+
+    // Define a function to animate the sparks on every frame
+    function animate() {
+      requestAnimationFrame(animate); // request the next animation frame
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // clear the canvas
+
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        // loop through the sparks array from the end to the beginning
+
+        const spark = sparks[i]; // get the current spark
+
+        updateSpark(spark); // update the spark position and alpha value
+
+        if (spark.alpha <= 0) {
+          // if the spark alpha value is zero or less
+
+          sparks.splice(i, 1); // remove the spark from the array
+        } else {
+          // otherwise
+
+          drawSpark(spark); // draw the spark on the canvas
+        }
+      }
+    }
+
+    animate(); // start the animation
+
+    // Add an event listener for mousemove event
+    document.addEventListener("mousemove", function (e) {
+      // Get the mouse coordinates relative to the window
+      const x = e.clientX;
+      const y = e.clientY;
+
+      // Update the cursor position by applying a transform style
+      cursor.style.transform = `translate(${x - 16}px, ${y - 16}px)`;
+
+      // Create some random sparks around the mouse position
+      for (let i = 0; i < 5; i++) {
+        const vx = Math.random() * 4 - 2; // random x velocity between -2 and 2
+        const vy = Math.random() * 4 - 2; // random y velocity between -2 and 2
+        const size = Math.random() * 2 + 1; // random size between 1 and 3
+        const color = `hsl(${Math.random() * 360}, 100%, 50%)`; // random hue between 0 and 360
+
+        const spark = createSpark(x, y, vx, vy, size, color); // create a new spark object
+
+        sparks.push(spark); // add the spark to the array
+      }
+    });
+  </script>
+</body>
+</html>
